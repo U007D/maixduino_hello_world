@@ -1,3 +1,5 @@
+//! `hello_world` prints "Hello world" to the serial port on a Sipeed Maixduino M1 board.
+
 #![warn(clippy::all, clippy::nursery, clippy::pedantic, rust_2018_idioms)]
 #![forbid(bare_trait_objects)]
 #![allow(clippy::match_bool)]
@@ -12,23 +14,38 @@
     clippy::option_unwrap_used,
     clippy::result_unwrap_used
 )]
-
-// Uncomment before ship to reconcile use of possibly redundant crates, debug remnants, missing license files and more
+#![no_std]
+#![no_main]
+// Uncomment before ship to discover possibly redundant crates, debug remnants, missing licenses...
 //#![warn(clippy::cargo, clippy::restriction, missing_docs, warnings)]
 //#![deny(warnings)]
 
+mod app;
 mod consts;
 mod error;
+mod panic;
+mod void;
 
-use pico_args::Arguments;
-pub use {consts::*, error::Error};
+use core::sync::atomic::{self, Ordering};
+use riscv_rt::entry;
+use {consts::*, error::Error, void::Void};
 
-pub type Result<T, E = Error> = std::result::Result<T, E>;
+/// `Result<T>` alias which defaults to `crate::Error` as the error type.
+pub type Result<T, E = Error> = core::result::Result<T, E>;
 
+/// Program execution begins here.
+#[entry]
+fn main() -> ! {
+    // NOTE(`unwrap_err()`): Cannot panic ∵ `app::run()` return type (`Result<!, Error>`) can only
+    // be an `Error`
+    let _err = app::run().unwrap_err();
 
-fn main() -> Result<()> {
-    // see examples/pico_args.rs for argument parsing example
-    let _args_parser = Arguments::from_env();
+    loop {
+        display_err(&_err);
+        (0..LOOP_DELAY).for_each(|_| atomic::compiler_fence(Ordering::SeqCst));
+    }
+}
 
-    Ok(())
+fn display_err(_err: &Error) {
+    // Communicate error state (e.g. flash LEDs in a pattern)
 }

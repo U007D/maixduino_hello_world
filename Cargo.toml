@@ -10,8 +10,8 @@ repository = "https://github.com/u007d/hello_world"
 version = "0.1.0"
 
 [dependencies]
-snafu = "*"
-pico-args = "*"
+riscv-rt = "0.6.1"
+k210-hal = "0.1.0"
 
 [profile.dev]
 codegen-units = 1
@@ -19,7 +19,7 @@ debug = true
 debug-assertions = true
 lto = false
 opt-level = 0
-panic = "unwind"
+panic = "abort"
 rpath = false
 
 [profile.release]
@@ -28,7 +28,7 @@ debug = false
 debug-assertions = false
 lto = true
 opt-level = 3
-panic = "unwind"
+panic = "abort"
 rpath = false
 
 [profile.test]
