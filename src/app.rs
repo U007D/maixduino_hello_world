@@ -1,5 +1,5 @@
-use crate::{Result, Void};
+use crate::Result;
 
-pub fn run() -> Result<Void> {
-    loop {}
+pub fn run() -> Result<()> {
+    Ok(())
 }

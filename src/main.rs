@@ -24,11 +24,10 @@ mod app;
 mod consts;
 mod error;
 mod panic;
-mod void;
 
 use core::sync::atomic::{self, Ordering};
 use riscv_rt::entry;
-use {consts::*, error::Error, void::Void};
+use {consts::*, error::Error};
 
 /// `Result<T>` alias which defaults to `crate::Error` as the error type.
 pub type Result<T, E = Error> = core::result::Result<T, E>;
@@ -36,14 +35,18 @@ pub type Result<T, E = Error> = core::result::Result<T, E>;
 /// Program execution begins here.
 #[entry]
 fn main() -> ! {
-    // NOTE(`unwrap_err()`): Cannot panic ∵ `app::run()` return type (`Result<!, Error>`) can only
-    // be an `Error`
-    let _err = app::run().unwrap_err();
+    let res = app::run();
 
     loop {
-        display_err(&_err);
-        (0..LOOP_DELAY).for_each(|_| atomic::compiler_fence(Ordering::SeqCst));
+        if let Err(ref err) = res {
+            display_err(err)
+        }
+        delay();
     }
+}
+
+fn delay() {
+    (0..LOOP_DELAY).for_each(|_| atomic::compiler_fence(Ordering::SeqCst))
 }
 
 fn display_err(_err: &Error) {
