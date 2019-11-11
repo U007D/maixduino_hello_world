@@ -8,7 +8,6 @@ pub trait ByteSliceExt {
 
 impl ByteSliceExt for [&str] {
     fn concat_exact_fit<'a>(&self, buf: &'a mut [u8]) -> Result<&'a str> {
-        true.option_with(|| Some(()));
         self.iter()
             // Track the current (start) position to write into the buffer.  Because
             // `copy_from_slice()` will panic if the src & dst byte slices are not exactly the
@@ -35,7 +34,7 @@ impl ByteSliceExt for [&str] {
                         (i_end_pos as usize, overflowed)
                     };
 
-                    // Will the result of the next concatenation yield a concatenation overflow?
+                    // Will the result of the next concatenation yield an invalid `str` (overflow)?
                     // If not, proceed with concat, otherwise indicate failure with an error
                     overflowed.if_else(
                         || Err(Error::ConcatStrExactSizeLenOverflow),
@@ -54,7 +53,7 @@ impl ByteSliceExt for [&str] {
             // Did the concatenation operation fail?  If so, pass through the result, otherwise
             // ensure the destination buffer is not larger than the concatenated `str`
             .and_then(move |(_, concat_byte_count)| {
-                (concat_byte_count == buf.len()).result_with(
+                (concat_byte_count == buf.len()).to_result_with(
                     move || {
                         str::from_utf8(buf)
                             // Will not panic ∵ `buf` is comprised only of concatenated (valid UTF8)
