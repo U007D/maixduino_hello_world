@@ -7,6 +7,8 @@ use core::{
 
 #[derive(Clone, Debug)]
 pub enum Error {
+    ConcatStrExactSizeLenOverflow,
+    ConcatStrExactSizeMismatch,
     NoMcuPeripherals,
     StdFmtError(FmtError),
     Utf8Error(str::Utf8Error),
@@ -18,6 +20,12 @@ impl Display for Error {
             Error::NoMcuPeripherals => write!(f, "{}", msg::ERR_NO_MCU_PERIPHERALS),
             Error::StdFmtError(err) => err.fmt(f),
             Error::Utf8Error(err) => err.fmt(f),
+            Error::ConcatStrExactSizeMismatch => {
+                write!(f, "{}", msg::ERR_INTERNAL_CONCAT_STR_EXACT_SIZE_MISMATCH)
+            }
+            Error::ConcatStrExactSizeLenOverflow => {
+                write!(f, "{}", msg::ERR_INTERNAL_CONCAT_STR_EXACT_SIZE_LEN_OVF)
+            }
         }
     }
 }

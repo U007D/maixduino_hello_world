@@ -23,9 +23,11 @@
 mod app;
 mod consts;
 mod error;
+mod ext;
 mod panic;
 
 use core::sync::atomic::{self, Ordering};
+use ext::{BoolExt, ByteSliceExt};
 use riscv_rt::entry;
 use {consts::*, error::Error};
 
