@@ -1,2 +1,2 @@
 # hello_world
-RISC-V Serial "Hello, world!" sample app. 
+RISC-V Serial "Hello, \<n>-bit world!" sample app. 
